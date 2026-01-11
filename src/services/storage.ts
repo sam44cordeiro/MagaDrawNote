@@ -13,7 +13,7 @@ export const saveTldrawSnapshot = async (snapshot: any) => {
   try {
     const db = await getStore();
     await db.set("tldraw-data", snapshot);
-    await db.save(); // Importante: força a escrita no disco
+    await db.save(); 
     console.log("💾 Tldraw: Snapshot salvo no disco.");
   } catch (err) {
     console.error("❌ Erro ao salvar Tldraw:", err);
@@ -35,13 +35,13 @@ export const getTldrawSnapshot = async () => {
     return null;
   }
 };
-export const saveTiptapContent = async (htmlContent: string) => {
+export const saveTiptapContent = async (docId: string, htmlContent: string) => {
   const db = await getStore();
-  await db.set("tiptap-data", htmlContent);
+  await db.set(`tiptap-data-${docId}`, htmlContent);
   await db.save();
 };
 
-export const getTiptapContent = async () => {
+export const getTiptapContent = async (docId: string) => {
   const db = await getStore();
-  return await db.get<string>("tiptap-data");
+  return await db.get<string>(`tiptap-data-${docId}`);
 };

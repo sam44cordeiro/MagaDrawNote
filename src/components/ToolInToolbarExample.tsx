@@ -13,6 +13,8 @@ import {
   useTools,
   Editor,
   TLStoreSnapshot,
+  useEditor,
+  useValue,
 } from "tldraw";
 import "tldraw/tldraw.css";
 import { PostItBig } from "./post-its-big";
@@ -30,6 +32,24 @@ export const customAssetUrls: TLUiAssetUrlOverrides = {
   icons: {
     "book-icon": BOOK_ICON_URL,
   },
+};
+
+const ThemeSync = () => {
+  const editor = useEditor();
+  const isDarkMode = useValue("isDarkMode", () => editor.user.getIsDarkMode(), [
+    editor,
+  ])
+
+  useEffect(() => {
+    console.log("🌗 Tldraw mudou o tema. É escuro?", isDarkMode);
+      if (isDarkMode) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+  }, [isDarkMode]);
+
+  return null;
 };
 
 const uiOverrides: TLUiOverrides = {
@@ -76,7 +96,7 @@ const customTools = [PostItBig];
 const customShapeUtils = [ButtonShapeUtil];
 
 interface ToolProps {
-  onOpenEditor: () => void;
+  onOpenEditor: (docId: string) => void;
 }
 
 export default function ToolInToolbarExample({ onOpenEditor }: ToolProps) {
@@ -112,8 +132,14 @@ export default function ToolInToolbarExample({ onOpenEditor }: ToolProps) {
   };
 
   useEffect(() => {
-    const handleOpenEditor = () => {
-      onOpenEditor();
+    const handleOpenEditor = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      // Pegamos o ID que mandamos no passo anterior
+      const docId = customEvent.detail?.id;
+
+      if (docId) {
+        onOpenEditor(docId); // Passamos o ID para o App
+      }
     };
     window.addEventListener("open-tiptap-editor", handleOpenEditor);
     return () => {
@@ -131,7 +157,9 @@ export default function ToolInToolbarExample({ onOpenEditor }: ToolProps) {
         components={components}
         assetUrls={customAssetUrls}
         onMount={handleMount}
-      />
+      >
+        <ThemeSync />
+      </Tldraw>
     </div>
   );
 }
