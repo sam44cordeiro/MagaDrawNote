@@ -15,10 +15,10 @@ import {
   TLStoreSnapshot,
   useEditor,
   useValue,
+  NoteShapeUtil,
 } from "tldraw";
 import "tldraw/tldraw.css";
-import { PostItBig } from "./post-its-big";
-import { ButtonShapeUtil } from "./ButtonShape";
+import { ButtonShapeUtil, PostItBig } from "./ButtonShape";
 
 import { getTldrawSnapshot, saveTldrawSnapshot } from "@/services/storage";
 
@@ -93,7 +93,9 @@ const components: TLComponents = {
 };
 
 const customTools = [PostItBig];
-const customShapeUtils = [ButtonShapeUtil];
+const customShapeUtils = [
+  ButtonShapeUtil, 
+  NoteShapeUtil.configure({ resizeMode: 'scale' }),];
 
 interface ToolProps {
   onOpenEditor: (docId: string) => void;

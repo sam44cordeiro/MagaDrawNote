@@ -45,3 +45,14 @@ export const getTiptapContent = async (docId: string) => {
   const db = await getStore();
   return await db.get<string>(`tiptap-data-${docId}`);
 };
+
+export const saveTiptapTitle = async (docId: string, title: string) => {
+  const db = await getStore();
+  await db.set(`tiptap-title-${docId}`, title);
+  await db.save();
+};
+
+export const getTiptapTitle = async (docId: string) => {
+  const db = await getStore();
+  return await db.get<string>(`tiptap-title-${docId}`);
+};

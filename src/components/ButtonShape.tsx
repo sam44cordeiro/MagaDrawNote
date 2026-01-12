@@ -5,9 +5,14 @@ import {
   T,
   Rectangle2d,
   TLResizeInfo,
+  StateNode,
+  createShapeId,
 } from "tldraw";
 import { useRef } from "react";
 
+// ---------------------------------------------------------
+// 1. DEFINIÇÃO DO TIPO DA FORMA
+// ---------------------------------------------------------
 export type IButtonShape = TLBaseShape<
   "button-shape",
   {
@@ -16,7 +21,9 @@ export type IButtonShape = TLBaseShape<
   }
 >;
 
-// --- COMPONENTE REACT INTERNO ---
+// ---------------------------------------------------------
+// 2. COMPONENTE REACT (LÓGICA DE INTERAÇÃO/RENDERIZAÇÃO)
+// ---------------------------------------------------------
 const ButtonComponent = ({ shape }: { shape: IButtonShape }) => {
   // Refs para controlar o tempo e posição
   const longPressTimerRef = useRef<any>(null);
@@ -24,7 +31,6 @@ const ButtonComponent = ({ shape }: { shape: IButtonShape }) => {
 
   // 1. PRESSIONOU O MOUSE
   const handlePointerDown = (e: React.PointerEvent) => {
-    // NÃO paramos a propagação (e.stopPropagation).
     // Deixamos o Tldraw selecionar, mover e redimensionar nativamente.
 
     // Guardamos a posição inicial para verificar se o mouse moveu depois
@@ -52,7 +58,7 @@ const ButtonComponent = ({ shape }: { shape: IButtonShape }) => {
   // 2. MOVEU O MOUSE
   const handlePointerMove = (e: React.PointerEvent) => {
     // Se o usuário mover o mouse significativamente (> 5px), é porque está tentando
-    // ARRASTAR ou REDIMENSIONAR o objeto. Então cancelamos a abertura do editor.
+    // ARRASTAR ou REDIMENSIONAR o objeto.
     if (startPosRef.current) {
       const dist = Math.hypot(
         e.clientX - startPosRef.current.x,
@@ -64,10 +70,10 @@ const ButtonComponent = ({ shape }: { shape: IButtonShape }) => {
           clearTimeout(longPressTimerRef.current);
           longPressTimerRef.current = null;
         }
-        console.log("Clique simples: Abrindo...", shape.id);
+        console.log("Clique simples/Movimento: Abrindo...", shape.id);
         window.dispatchEvent(
           new CustomEvent("open-tiptap-editor", {
-            detail: { id: shape.id }, // <--- IMPORTANTE: Enviamos o ID aqui
+            detail: { id: shape.id },
           })
         );
       }
@@ -88,29 +94,27 @@ const ButtonComponent = ({ shape }: { shape: IButtonShape }) => {
       <div
         data-shape-id={shape.id}
         onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove} // Monitoramos movimento para cancelar
-        onPointerUp={cancelLongPress} // Se soltar antes do tempo, cancela
-        onPointerLeave={cancelLongPress} // Se sair de cima, cancela
+        onPointerMove={handlePointerMove}
+        onPointerUp={cancelLongPress}
+        onPointerLeave={cancelLongPress}
         style={{
           width: "100%",
           height: "100%",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "#333",
+          color: "var(--color-text)",
           transition: "transform 0.1s, color 0.1s",
           cursor: "pointer",
-          // Importante: userSelect none para não selecionar o ícone como texto
           userSelect: "none",
         }}
-        // Efeitos visuais simples de hover
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = "scale(1.1)";
           e.currentTarget.style.color = "#2563eb";
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = "scale(1)";
-          e.currentTarget.style.color = "#333";
+          e.currentTarget.style.color = "var(--color-text)";
         }}
       >
         <svg
@@ -130,11 +134,12 @@ const ButtonComponent = ({ shape }: { shape: IButtonShape }) => {
   );
 };
 
-// --- CLASSE UTILITÁRIA ---
+// ---------------------------------------------------------
+// 3. CLASSE UTILITÁRIA DA FORMA (SHAPE UTIL)
+// ---------------------------------------------------------
 export class ButtonShapeUtil extends ShapeUtil<IButtonShape> {
   static override type = "button-shape" as const;
 
-  // Habilita o redimensionamento nativo
   override canResize = () => true;
   override isAspectRatioLocked = () => true;
 
@@ -158,7 +163,6 @@ export class ButtonShapeUtil extends ShapeUtil<IButtonShape> {
     });
   }
 
-  // Lógica de redimensionamento
   override onResize(_shape: IButtonShape, info: TLResizeInfo<IButtonShape>) {
     return {
       props: {
@@ -174,5 +178,37 @@ export class ButtonShapeUtil extends ShapeUtil<IButtonShape> {
 
   override indicator(shape: IButtonShape) {
     return <rect width={shape.props.w} height={shape.props.h} />;
+  }
+}
+
+// ---------------------------------------------------------
+// 4. A FERRAMENTA (TOOL)
+// ---------------------------------------------------------
+export class PostItBig extends StateNode {
+  static override id = "postitbig";
+
+  override onEnter() {
+    this.editor.setCursor({ type: "cross", rotation: 0 });
+  }
+
+  override onPointerDown() {
+    const { currentPagePoint } = this.editor.inputs;
+
+    const id = createShapeId();
+    // Tamanho do ícone (quadrado)
+    const SIZE = 64;
+
+    this.editor.createShape({
+      id,
+      type: "button-shape",
+      x: currentPagePoint.x - SIZE / 2,
+      y: currentPagePoint.y - SIZE / 2,
+      props: {
+        w: SIZE,
+        h: SIZE,
+      },
+    });
+
+    this.editor.setCurrentTool("select");
   }
 }

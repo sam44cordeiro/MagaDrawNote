@@ -1,7 +1,12 @@
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useState } from "react";
-import { getTiptapContent, saveTiptapContent } from "@/services/storage";
+import {
+  getTiptapContent,
+  saveTiptapContent,
+  getTiptapTitle,
+  saveTiptapTitle,
+} from "@/services/storage";
 import TextAlign from "@tiptap/extension-text-align";
 import { Extension, textInputRule } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
@@ -243,12 +248,18 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
         <span className={sectionTitleClass}>Código & Cor</span>
 
         <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-600">
-          {/* Input de Cor Nativo (Escondido visualmente mas clicável) */}
           <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-300 shadow-sm cursor-pointer hover:scale-110 transition-transform">
             <input
               type="color"
               value={currentColorValue}
               onChange={handleColorChange}
+              onClick={() => {
+                editor
+                  .chain()
+                  .focus()
+                  .setHighlight({ color: currentColorValue })
+                  .run();
+              }}
               className="absolute -top-2 -left-2 w-12 h-12 cursor-pointer p-0 border-0"
               title="Escolher cor do fundo"
             />
@@ -316,6 +327,7 @@ interface TiptapEditorProps {
 const TiptapEditor = ({ onBack, docId }: TiptapEditorProps) => {
   const [contentLoaded, setContentLoaded] = useState(false);
   const [initialContent, setInitialContent] = useState("");
+  const [title, setTitle] = useState("Documento Sem Nome");
 
   useEffect(() => {
     setContentLoaded(false);
@@ -328,10 +340,22 @@ const TiptapEditor = ({ onBack, docId }: TiptapEditorProps) => {
           `<h1>Novo Documento</h1><p>Comece a escrever aqui...</p>`
         );
       }
+
+      const savedTitle = await getTiptapTitle(docId);
+      if (savedTitle) {
+        setTitle(savedTitle);
+      }
+
       setContentLoaded(true);
     };
     load();
   }, [docId]);
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    saveTiptapTitle(docId, newTitle);
+  };
 
   const editor = useEditor(
     {
@@ -402,9 +426,13 @@ const TiptapEditor = ({ onBack, docId }: TiptapEditorProps) => {
             ← Voltar
           </button>
           <div className="h-5 w-px bg-gray-300 dark:bg-gray-700"></div>
-          <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide dark:text-gray-400">
-            Documento
-          </span>
+          <input
+            type="text"
+            value={title}
+            onChange={handleTitleChange}
+            placeholder="Nome do Documento"
+            className="bg-transparent border-none outline-none text-sm font-semibold text-gray-500 uppercase tracking-wide w-248 placeholder-gray-300 transition-colors focus:text-gray-800 dark:text-gray-400 dark:focus:text-gray-200"
+          />
         </div>
       </div>
 
