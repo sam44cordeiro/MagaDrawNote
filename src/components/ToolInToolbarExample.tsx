@@ -20,7 +20,12 @@ import {
 import "tldraw/tldraw.css";
 import { ButtonShapeUtil, PostItBig } from "./ButtonShape";
 
-import { getTldrawSnapshot, saveTldrawSnapshot } from "@/services/storage";
+import {
+  getTldrawSnapshot,
+  saveTldrawSnapshot,
+  getTldrawUiState,
+  saveTldrawUiState,
+} from "@/services/storage";
 
 const BOOK_ICON_URL = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
@@ -38,15 +43,15 @@ const ThemeSync = () => {
   const editor = useEditor();
   const isDarkMode = useValue("isDarkMode", () => editor.user.getIsDarkMode(), [
     editor,
-  ])
+  ]);
 
   useEffect(() => {
     console.log("🌗 Tldraw mudou o tema. É escuro?", isDarkMode);
-      if (isDarkMode) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
   }, [isDarkMode]);
 
   return null;
@@ -94,8 +99,9 @@ const components: TLComponents = {
 
 const customTools = [PostItBig];
 const customShapeUtils = [
-  ButtonShapeUtil, 
-  NoteShapeUtil.configure({ resizeMode: 'scale' }),];
+  ButtonShapeUtil,
+  NoteShapeUtil.configure({ resizeMode: "scale" }),
+];
 
 interface ToolProps {
   onOpenEditor: (docId: string) => void;
@@ -116,6 +122,14 @@ export default function ToolInToolbarExample({ onOpenEditor }: ToolProps) {
           editor.loadSnapshot(snapshot as TLStoreSnapshot);
           console.log("✅ Tldraw carregado.");
         }
+
+        // 2. CARREGAR ESTADO DA INTERFACE (Grade, Foco, etc.)
+        const uiState = await getTldrawUiState();
+        if (uiState) {
+          // Aplica as configurações salvas na instância atual
+          editor.updateInstanceState(uiState);
+          console.log("✅ UI State restaurado (Grade, etc).");
+        }
       } catch (e) {
         console.error("Erro ao carregar", e);
       }
@@ -128,6 +142,15 @@ export default function ToolInToolbarExample({ onOpenEditor }: ToolProps) {
         saveTimeoutRef.current = setTimeout(() => {
           const snapshot = editor.getSnapshot();
           saveTldrawSnapshot(snapshot);
+
+          const { isGridMode, isFocusMode, isDebugMode } =
+            editor.getInstanceState();
+
+          saveTldrawUiState({
+            isGridMode,
+            isFocusMode,
+            isDebugMode,
+          });
         }, 200);
       });
     })();

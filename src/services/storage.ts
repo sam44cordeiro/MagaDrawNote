@@ -1,13 +1,50 @@
 import { Store } from "@tauri-apps/plugin-store";
+import { documentDir, join } from "@tauri-apps/api/path";
 
 let store: Store | null = null;
 
 async function getStore() {
   if (!store) {
-    store = await Store.load("app-data-v2.json");
+    try {
+      // 1. Pega o caminho da pasta Documentos do usuário
+      const docsPath = await documentDir();
+      
+      // 2. Cria o caminho completo: Documentos/MagaDrawNote/app-data-v2.json
+      const fullPath = await join(docsPath, 'MagaDrawNote', 'app-data-v2.json');
+      
+      console.log("📂 Tentando salvar em:", fullPath);
+
+      // 3. Carrega o Store nesse caminho específico
+      store = await Store.load(fullPath);
+      
+    } catch (err) {
+      console.error("Erro ao definir caminho do arquivo:", err);
+      // Fallback: se der erro, salva no padrão (AppData)
+      store = await Store.load("app-data-v2.json");
+    }
   }
   return store;
 }
+
+
+export const saveTldrawUiState = async (uiState: any) => {
+  try {
+    const db = await getStore();
+    await db.set("tldraw-ui-state", uiState);
+    await db.save();
+  } catch (err) {
+    console.error("❌ Erro ao salvar UI State:", err);
+  }
+};
+
+export const getTldrawUiState = async () => {
+  try {
+    const db = await getStore();
+    return await db.get<any>("tldraw-ui-state");
+  } catch (err) {
+    return null;
+  }
+};
 
 export const saveTldrawSnapshot = async (snapshot: any) => {
   try {

@@ -15,6 +15,7 @@ dist-ssr
 # Rust / Tauri build
 src-tauri/target/
 src-tauri/gen/
+src-tauri/icons
 
 # Editor directories and files
 .vscode/*
@@ -26,3 +27,5 @@ src-tauri/gen/
 *.njsproj
 *.sln
 *.sw?
+
+MagaDrawNote.png

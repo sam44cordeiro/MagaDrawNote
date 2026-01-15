@@ -53,17 +53,17 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
   const btnClass = (isActive: boolean) =>
     `${btnBase} ${
       isActive
-        ? "bg-gray-900 text-white border-gray-900 shadow-sm dark:bg-blue-600 dark:border-blue-600 dark:text-white"
-        : "bg-white text-gray-700 border-gray-200 hover:bg-gray-100 hover:border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700"
+        ? "bg-zinc-950 text-white border-gray-900 shadow-sm dark:bg-zinc-500 dark:border-gray-300 dark:text-white"
+        : "bg-white text-gray-700 border-gray-200 hover:bg-zinc-100 hover:border-gray-300 dark:bg-zinc-900 dark:text-gray-300 dark:border-gray-400 dark:hover:bg-zinc-700"
     }`;
 
-  const actionBtnClass = `${btnBase} bg-gray-50 text-gray-700 border-gray-200 hover:bg-white hover:border-gray-300 hover:shadow-sm dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700`;
+  const actionBtnClass = `${btnBase} bg-zinc-50 text-gray-700 border-gray-200 hover:bg-white hover:border-gray-300 hover:shadow-sm dark:bg-zinc-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-zinc-700`;
 
   const sectionTitleClass =
     "text-xs font-semibold text-gray-400 uppercase tracking-wider dark:text-gray-500";
 
   return (
-    <div className="w-40 bg-gray-50 border-r border-gray-200 flex flex-col gap-6 p-4 overflow-y-auto h-full shrink-0 dark:bg-gray-900 dark:border-gray-700">
+    <div className="w-40 bg-zinc-50 border-r border-gray-200 flex flex-col gap-6 p-4 overflow-y-auto h-full shrink-0 dark:bg-zinc-950 dark:border-gray-500">
       <div className="flex flex-col gap-2">
         <span className={sectionTitleClass}>Histórico</span>
         <div className="grid grid-cols-2 gap-2">
@@ -247,7 +247,7 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
       <div className="flex flex-col gap-2">
         <span className={sectionTitleClass}>Código & Cor</span>
 
-        <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-600">
+        <div className="flex items-center gap-2 bg-white dark:bg-zinc-800 p-2 rounded border border-gray-200 dark:border-gray-600">
           <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-300 shadow-sm cursor-pointer hover:scale-110 transition-transform">
             <input
               type="color"
@@ -391,8 +391,8 @@ const TiptapEditor = ({ onBack, docId }: TiptapEditorProps) => {
             [&_code]:bg-purple-100 [&_code]:text-purple-800 [&_code]:rounded-md [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm
             dark:[&_code]:bg-purple-900 dark:[&_code]:text-purple-200
             
-            [&_pre]:bg-gray-900 [&_pre]:text-gray-100 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:my-6 [&_pre]:font-mono [&_pre]:overflow-x-auto [&_pre]:border [&_pre]:border-gray-800
-            dark:[&_pre]:bg-gray-800 dark:[&_pre]:text-gray-200
+            [&_pre]:bg-zinc-900 [&_pre]:text-gray-100 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:my-6 [&_pre]:font-mono [&_pre]:overflow-x-auto [&_pre]:border [&_pre]:border-gray-800
+            dark:[&_pre]:bg-zinc-800 dark:[&_pre]:text-gray-200
             
             [&_pre_code]:bg-transparent [&_pre_code]:text-inherit [&_pre_code]:p-0
             
@@ -410,22 +410,22 @@ const TiptapEditor = ({ onBack, docId }: TiptapEditorProps) => {
 
   if (!contentLoaded)
     return (
-      <div className="flex h-screen items-center justify-center text-gray-500 dark:text-gray-400 dark:bg-gray-900">
+      <div className="flex h-screen items-center justify-center text-gray-500 dark:text-gray-400 dark:bg-zinc-900">
         Carregando...
       </div>
     );
 
   return (
-    <div className="flex flex-col w-full h-screen bg-gray-100 font-sans overflow-hidden dark:bg-gray-950">
-      <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm z-20 shrink-0 dark:bg-gray-900 dark:border-gray-800">
+    <div className="flex flex-col w-full h-screen bg-zinc-100 font-sans overflow-hidden dark:bg-zinc-950">
+      <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm z-20 shrink-0 dark:bg-zinc-900 dark:border-gray-800">
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="text-gray-600 hover:text-gray-900 font-medium flex items-center gap-1 text-sm hover:bg-gray-100 px-3 py-1.5 rounded transition-colors dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800"
+            className="text-gray-600 hover:text-gray-900 font-medium flex items-center gap-1 text-sm hover:bg-zinc-100 px-3 py-1.5 rounded transition-colors dark:text-gray-300 dark:hover:text-white dark:hover:bg-zinc-800"
           >
             ← Voltar
           </button>
-          <div className="h-5 w-px bg-gray-300 dark:bg-gray-700"></div>
+          <div className="h-5 w-px bg-zinc-300 dark:bg-zinc-700"></div>
           <input
             type="text"
             value={title}
@@ -440,10 +440,10 @@ const TiptapEditor = ({ onBack, docId }: TiptapEditorProps) => {
         <MenuBar editor={editor} />
 
         <div
-          className="flex-1 overflow-y-auto bg-gray-100/50 p-8 dark:bg-gray-950"
+          className="flex-1 overflow-y-auto bg-zinc-100/50 p-8 dark:bg-zinc-950"
           onClick={() => editor?.commands.focus()}
         >
-          <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl border border-gray-200 p-12 min-h-[calc(100vh-100px)] cursor-text dark:bg-gray-900 dark:border-gray-800 dark:shadow-black/50">
+          <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl border border-gray-200 p-12 min-h-[calc(100vh-100px)] cursor-text dark:bg-zinc-900 dark:border-gray-800 dark:shadow-black/50">
             <EditorContent editor={editor} />
           </div>
 
